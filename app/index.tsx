@@ -1,9 +1,10 @@
 import { Stack } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { useQuery } from "@tanstack/react-query";
 import ProductCard from "@/components/ProductCard";
+import ProductShimmerGrid from "@/components/ProductListShimmer";
 import { Product, getCategories, getProducts } from "@/utils/api";
 import colors from "@/utils/colors";
 
@@ -14,6 +15,7 @@ export default function Index() {
   const {
     data: products = [],
     refetch,
+    isLoading,
     isRefetching,
   } = useQuery({
     queryKey: ["products"],
@@ -86,15 +88,19 @@ export default function Index() {
           </ScrollView>
         </View>
 
-        <FlashList
-          data={filteredProducts}
-          renderItem={renderProduct}
-          estimatedItemSize={200}
-          numColumns={2}
-          contentContainerStyle={{ padding: 8 }}
-          onRefresh={refetch}
-          refreshing={isRefetching}
-        />
+        {isLoading ? (
+          <ProductShimmerGrid />
+        ) : (
+          <FlashList
+            data={filteredProducts}
+            renderItem={renderProduct}
+            estimatedItemSize={200}
+            numColumns={2}
+            contentContainerStyle={{ padding: 8 }}
+            onRefresh={refetch}
+            refreshing={isRefetching}
+          />
+        )}
       </View>
     </>
   );
