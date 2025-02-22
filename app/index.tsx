@@ -1,9 +1,9 @@
 import { useCallback } from "react";
-import { getCategories, getProducts, Product } from "@/utils/api";
-import { useQuery } from "@tanstack/react-query";
 import { StyleSheet, View } from "react-native";
 import { FlashList } from "@shopify/flash-list";
+import { useQuery } from "@tanstack/react-query";
 import ProductCard from "@/components/ProductCard";
+import { Product, getCategories, getProducts } from "@/utils/api";
 
 export default function Index() {
   const {

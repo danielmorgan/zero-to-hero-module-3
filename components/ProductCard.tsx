@@ -1,7 +1,7 @@
-import { Product } from "@/utils/api";
-import colors from "@/utils/colors";
 import { useRouter } from "expo-router";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Product } from "@/utils/api";
+import colors from "@/utils/colors";
 
 type Props = {
   product: Product;
