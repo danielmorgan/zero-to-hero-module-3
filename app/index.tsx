@@ -1,11 +1,16 @@
-import { useCallback } from "react";
-import { StyleSheet, View } from "react-native";
+import { Stack } from "expo-router";
+import { useCallback, useMemo, useState } from "react";
+import { Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { useQuery } from "@tanstack/react-query";
 import ProductCard from "@/components/ProductCard";
 import { Product, getCategories, getProducts } from "@/utils/api";
+import colors from "@/utils/colors";
 
 export default function Index() {
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+
   const {
     data: products = [],
     refetch,
@@ -19,7 +24,16 @@ export default function Index() {
     queryFn: getCategories,
   });
 
-  const categories = ["All", ...categoriesData];
+  const categories = ["all", ...categoriesData];
+
+  const filteredProducts = useMemo(() => {
+    return products?.filter((product) => {
+      if (selectedCategory !== "all") {
+        return product.category === selectedCategory;
+      }
+      return product.title.toLowerCase().includes(searchQuery.toLowerCase());
+    });
+  }, [products, searchQuery, selectedCategory]);
 
   const renderProduct = useCallback(
     ({ item }: { item: Product }) => <ProductCard product={item} />,
@@ -27,17 +41,62 @@ export default function Index() {
   );
 
   return (
-    <View style={styles.container}>
-      <FlashList
-        data={products}
-        renderItem={renderProduct}
-        estimatedItemSize={200}
-        numColumns={2}
-        contentContainerStyle={{ padding: 8 }}
-        onRefresh={refetch}
-        refreshing={isRefetching}
+    <>
+      <Stack.Screen
+        options={{
+          title: "Galactic Products",
+          headerShadowVisible: false,
+          headerSearchBarOptions: {
+            placeholder: "Search products...",
+            hideWhenScrolling: false,
+            hideNavigationBar: false,
+            onChangeText: (event) => {
+              setSearchQuery(event.nativeEvent.text);
+            },
+          },
+        }}
       />
-    </View>
+
+      <View style={styles.container}>
+        <View style={styles.categoryContainer}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.categoryScrollView}
+          >
+            {categories.map((category) => (
+              <Pressable
+                key={category}
+                onPress={() => setSelectedCategory(category)}
+                style={[
+                  styles.categoryButton,
+                  selectedCategory === category && styles.selectedCategoryButton,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.categoryButtonText,
+                    selectedCategory === category && styles.selectedCategoryButtonText,
+                  ]}
+                >
+                  {category.charAt(0).toUpperCase() + category.slice(1)}
+                </Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+        </View>
+
+        <FlashList
+          data={filteredProducts}
+          renderItem={renderProduct}
+          estimatedItemSize={200}
+          numColumns={2}
+          contentContainerStyle={{ padding: 8 }}
+          onRefresh={refetch}
+          refreshing={isRefetching}
+        />
+      </View>
+    </>
   );
 }
 
@@ -45,5 +104,31 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+  },
+  categoryContainer: {
+    boxShadow: "0 0 10px 0 rgba(0, 0, 0, 0.1)",
+    zIndex: 10,
+    paddingVertical: 8,
+  },
+  categoryScrollView: {
+    paddingHorizontal: 12,
+  },
+  categoryButton: {
+    borderRadius: 32,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    marginHorizontal: 4,
+    backgroundColor: "#f0f0f0",
+    justifyContent: "center",
+  },
+  categoryButtonText: {
+    fontSize: 14,
+    color: "#666",
+  },
+  selectedCategoryButton: {
+    backgroundColor: colors.primary,
+  },
+  selectedCategoryButtonText: {
+    color: "#fff",
   },
 });
