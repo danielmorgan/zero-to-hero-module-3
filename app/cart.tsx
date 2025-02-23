@@ -32,7 +32,7 @@ const Cart = () => {
           data={products}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => <CartItem item={item} />}
-          ListFooterComponent={() => (
+          ListHeaderComponent={() => (
             <>
               {products.length && <Text style={styles.totalText}>Total: ${total.toFixed(2)}</Text>}
             </>
@@ -63,11 +63,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+    paddingTop: 16,
   },
   emptyContainer: {
     flex: 1,
     backgroundColor: "#fff",
-    paddingTop: 16,
   },
   emptyText: {
     textAlign: "center",

@@ -4,6 +4,14 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import ReanimatedSwipeable, {
   SwipeableMethods,
 } from "react-native-gesture-handler/ReanimatedSwipeable";
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withSequence,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
 import { CartProductEntry, useCartStore } from "@/store/cartStore";
 import colors from "@/utils/colors";
 import CartItemLeftActions from "./CartItemLeftActions";
@@ -15,6 +23,9 @@ type Props = {
 const CartItem = ({ item }: Props) => {
   const { addProduct, reduceProduct, removeProduct } = useCartStore();
   const swipeableRef = useRef<SwipeableMethods>(null);
+  const opacityAnim = useSharedValue(1);
+  const scaleAnim = useSharedValue(1);
+  const heightAnim = useSharedValue(80);
 
   const handleQuantityChanged = (type: "increment" | "decrement") => {
     if (type === "increment") {
@@ -22,12 +33,28 @@ const CartItem = ({ item }: Props) => {
     } else {
       reduceProduct(item);
     }
+
+    scaleAnim.value = withSequence(
+      withSpring(1.2, { damping: 1, stiffness: 100 }),
+      withSpring(1, { damping: 1, stiffness: 100 })
+    );
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
+    opacityAnim.value = withTiming(0, { duration: 300, easing: Easing.inOut(Easing.exp) });
+    heightAnim.value = withTiming(0, { duration: 300, easing: Easing.inOut(Easing.exp) });
+    await new Promise((resolve) => setTimeout(resolve, 300));
     removeProduct(item);
     swipeableRef.current?.close();
   };
+
+  const quantityAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scaleAnim.value }],
+  }));
+  const containerAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: opacityAnim.value,
+    height: heightAnim.value,
+  }));
 
   return (
     <ReanimatedSwipeable
@@ -38,7 +65,7 @@ const CartItem = ({ item }: Props) => {
         <CartItemLeftActions progress={progress} drag={dragX} onShouldDelete={handleDelete} />
       )}
     >
-      <View style={styles.cartItemContainer}>
+      <Animated.View style={[styles.cartItemContainer, containerAnimatedStyle]}>
         <Image source={{ uri: item.image }} style={styles.image} />
         <View style={styles.itemContainer}>
           <Text style={styles.cartItemName}>{item.title}</Text>
@@ -48,12 +75,14 @@ const CartItem = ({ item }: Props) => {
           <TouchableOpacity onPress={() => handleQuantityChanged("decrement")}>
             <Ionicons name="remove" size={24} color="black" />
           </TouchableOpacity>
-          <Text style={styles.quantityText}>{item.quantity}</Text>
+          <Animated.Text style={[styles.quantityText, quantityAnimatedStyle]}>
+            {item.quantity}
+          </Animated.Text>
           <TouchableOpacity onPress={() => handleQuantityChanged("increment")}>
             <Ionicons name="add" size={24} color="black" />
           </TouchableOpacity>
         </View>
-      </View>
+      </Animated.View>
     </ReanimatedSwipeable>
   );
 };

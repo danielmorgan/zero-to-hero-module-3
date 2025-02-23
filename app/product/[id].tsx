@@ -29,7 +29,7 @@ const Product = () => {
   const handleAddToCart = () => {
     if (product) {
       addProduct(product);
-      router.push("/cart");
+      // router.push("/cart");
     }
   };
 
