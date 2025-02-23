@@ -12,19 +12,25 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { useQuery } from "@tanstack/react-query";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ProductDetailsShimmer } from "@/components/ProductDetailsShimmer";
+import { useCartStore } from "@/store/cartStore";
 import { getProduct } from "@/utils/api";
 import colors from "@/utils/colors";
 
 const Product = () => {
   const { id } = useLocalSearchParams();
   const { bottom } = useSafeAreaInsets();
+  const { addProduct } = useCartStore();
 
   const { data: product, isLoading } = useQuery({
     queryKey: ["product", id],
     queryFn: () => getProduct(Number(id)),
   });
 
-  const handleAddToCart = () => {};
+  const handleAddToCart = () => {
+    if (product) {
+      addProduct(product);
+    }
+  };
 
   if (isLoading) {
     return <ProductDetailsShimmer />;
