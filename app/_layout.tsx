@@ -1,7 +1,9 @@
 import { Stack } from "expo-router";
+import { useMMKVDevTools } from "@dev-plugins/react-native-mmkv";
 import { useReactQueryDevTools } from "@dev-plugins/react-query";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import CartButton from "@/components/CartButton";
+import { storage } from "@/store/mmkv";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -13,6 +15,7 @@ const queryClient = new QueryClient({
 
 export default function RootLayout() {
   useReactQueryDevTools(queryClient);
+  useMMKVDevTools({ storage });
 
   return (
     <QueryClientProvider client={queryClient}>
