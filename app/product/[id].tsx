@@ -1,4 +1,4 @@
-import { Stack, useLocalSearchParams } from "expo-router";
+import { Stack, router, useLocalSearchParams } from "expo-router";
 import {
   Image,
   Platform,
@@ -29,6 +29,7 @@ const Product = () => {
   const handleAddToCart = () => {
     if (product) {
       addProduct(product);
+      router.push("/cart");
     }
   };
 

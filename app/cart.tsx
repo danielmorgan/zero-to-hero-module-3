@@ -23,17 +23,23 @@ const Cart = () => {
 
   return (
     <View style={styles.container}>
-      {products.length === 0 && <Text style={styles.emptyText}>No products in cart</Text>}
-
-      <FlatList
-        data={products}
-        renderItem={({ item }) => <CartItem item={item} />}
-        keyExtractor={(item) => item.id.toString()}
-        ListFooterComponent={() => (
-          <>{products.length && <Text style={styles.totalText}>Total: ${total.toFixed(2)}</Text>}</>
-        )}
-        contentContainerStyle={{ paddingHorizontal: 16 }}
-      />
+      {products.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>No products in cart</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={products}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => <CartItem item={item} />}
+          ListFooterComponent={() => (
+            <>
+              {products.length && <Text style={styles.totalText}>Total: ${total.toFixed(2)}</Text>}
+            </>
+          )}
+          contentContainerStyle={{ gap: 10 }}
+        />
+      )}
 
       <TouchableOpacity
         style={[
@@ -55,6 +61,10 @@ export default Cart;
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
+  emptyContainer: {
     flex: 1,
     backgroundColor: "#fff",
     paddingTop: 16,
