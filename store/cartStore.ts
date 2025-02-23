@@ -3,7 +3,7 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import { zustandStorage } from "@/store/mmkv";
 import { Product } from "@/utils/api";
 
-type CartProductEntry = Product & { quantity: number };
+export type CartProductEntry = Product & { quantity: number };
 export interface CartState {
   products: CartProductEntry[];
   addProduct: (product: Product) => void;
@@ -41,7 +41,7 @@ export const useCartStore = create<CartState>()(
 
           return {
             products: newProducts,
-            total: newTotal,
+            total: +newTotal.toFixed(2),
             count: newCount,
           };
         });
@@ -56,7 +56,7 @@ export const useCartStore = create<CartState>()(
             products: state.products
               .map((p) => (p.id === product.id ? { ...p, quantity: p.quantity - 1 } : p))
               .filter((p) => p.quantity > 0),
-            total: newTotal,
+            total: +newTotal.toFixed(2),
             count: newCount,
           };
         });
