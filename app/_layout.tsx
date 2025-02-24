@@ -1,12 +1,28 @@
-import { Stack, router } from "expo-router";
-import { Text, TouchableOpacity } from "react-native";
+import { Stack, useNavigationContainerRef } from "expo-router";
+import { useEffect } from "react";
 import { useMMKVDevTools } from "@dev-plugins/react-native-mmkv";
 import { useReactQueryDevTools } from "@dev-plugins/react-query";
-import Ionicons from "@expo/vector-icons/Ionicons";
+import * as Sentry from "@sentry/react-native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import CartButton from "@/components/CartButton";
 import { storage } from "@/store/mmkv";
+
+const navigationIntegration = Sentry.reactNavigationIntegration({
+  enableTimeToInitialDisplay: true,
+});
+
+Sentry.init({
+  dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
+  attachScreenshot: true,
+  tracesSampler: () => 1.0,
+  replaysSessionSampleRate: 1.0,
+  replaysOnErrorSampleRate: 1.0,
+  _experiments: {
+    profilesSampleRate: 1.0,
+  },
+  integrations: [Sentry.mobileReplayIntegration(), navigationIntegration],
+});
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -16,9 +32,14 @@ const queryClient = new QueryClient({
   },
 });
 
-export default function RootLayout() {
+function RootLayout() {
   useReactQueryDevTools(queryClient);
   useMMKVDevTools({ storage });
+
+  const ref = useNavigationContainerRef();
+  useEffect(() => {
+    navigationIntegration.registerNavigationContainer(ref);
+  }, [ref]);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -43,3 +64,5 @@ export default function RootLayout() {
     </QueryClientProvider>
   );
 }
+
+export default Sentry.wrap(RootLayout);

@@ -1,6 +1,8 @@
 import { Stack } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Button } from "react-native";
+import * as Sentry from "@sentry/react-native";
 import { FlashList } from "@shopify/flash-list";
 import { useQuery } from "@tanstack/react-query";
 import ProductCard from "@/components/ProductCard";
@@ -60,6 +62,13 @@ export default function Index() {
       />
 
       <View style={styles.container}>
+        <Button
+          title="Throw error"
+          onPress={() => {
+            Sentry.captureException(new Error("First error"));
+          }}
+        />
+
         <View style={styles.categoryContainer}>
           <ScrollView
             horizontal
