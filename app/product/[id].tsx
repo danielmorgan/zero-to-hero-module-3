@@ -3,6 +3,7 @@ import {
   Image,
   Platform,
   ScrollView,
+  Share,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -43,7 +44,19 @@ const Product = () => {
 
   return (
     <>
-      <Stack.Screen options={{ title: product.title }} />
+      <Stack.Screen
+        options={{
+          title: product.title,
+          headerRight: () => (
+            <Ionicons
+              name="share-outline"
+              size={24}
+              color="black"
+              onPress={() => Share.share({ message: `shoppingapp://product/${id}` })}
+            />
+          ),
+        }}
+      />
 
       <View style={styles.container}>
         <ScrollView>
